@@ -1,1 +1,1 @@
-# ship-sharding-spring-boot-starter
+# ship-sharding
