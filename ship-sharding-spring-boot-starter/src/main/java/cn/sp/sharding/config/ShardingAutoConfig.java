@@ -1,20 +1,21 @@
 package cn.sp.sharding.config;
 
-import cn.sp.sharding.properties.CommonConstants;
+import cn.sp.sharding.constant.CommonConstants;
 import cn.sp.sharding.properties.ConfigMapConfigurationProperties;
 import cn.sp.sharding.properties.ShardingRuleConfigurationProperties;
 import cn.sp.sharding.util.DataSourceUtil;
 import cn.sp.sharding.util.PropertyUtil;
-import com.google.common.collect.Maps;
 import org.apache.shardingsphere.api.config.sharding.ShardingRuleConfiguration;
 import org.apache.shardingsphere.core.yaml.swapper.ShardingRuleConfigurationYamlSwapper;
 import org.apache.shardingsphere.shardingjdbc.api.ShardingDataSourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 
 import javax.sql.DataSource;
@@ -28,8 +29,10 @@ import java.util.Map;
  * @description:
  * @date 2023/06/06
  */
+@AutoConfigureBefore(name = CommonConstants.MYBATIS_PLUS_CONFIG_CLASS)
 @Configuration
 @EnableConfigurationProperties(value = {ShardingRuleConfigurationProperties.class, ConfigMapConfigurationProperties.class})
+@Import(DataSourceHealthConfig.class)
 public class ShardingAutoConfig implements EnvironmentAware {
 
 

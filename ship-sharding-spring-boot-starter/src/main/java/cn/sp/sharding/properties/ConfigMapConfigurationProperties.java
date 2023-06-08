@@ -1,5 +1,6 @@
 package cn.sp.sharding.properties;
 
+import cn.sp.sharding.constant.CommonConstants;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Properties;
