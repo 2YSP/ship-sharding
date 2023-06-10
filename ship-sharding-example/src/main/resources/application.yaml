@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: ship-sharding-example
+
+
+mybatis-plus:
+  base-package: cn.sp.sharding.dao
+  mapper-locations: classpath*:/mapper/*Mapper.xml
+  configuration:
+    #开启自动驼峰命名规则（camel case）映射
+    map-underscore-to-camel-case: true
+    #延迟加载，需要和lazy-loading-enabled一起使用
+    aggressive-lazy-loading: true
+    lazy-loading-enabled: true
+    #关闭一级缓存
+    local-cache-scope: statement
+    #关闭二级级缓存
+    cache-enabled: false
+
+ship:
+  sharding:
+    jdbc:
+      datasource:
+        names: ds0
+        ds0:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          type: com.alibaba.druid.pool.DruidDataSource
+          url: jdbc:mysql://127.0.0.1:3306/my_springboot?autoReconnect=true&useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false
+          username: root
+          password: 1234
+          initial-size: 5
+          minIdle: 5
+          maxActive: 20
+          maxWait: 60000
+          timeBetweenEvictionRunsMillis: 60000
+          minEvictableIdleTimeMillis: 300000
+          validationQuery: SELECT 1 FROM DUAL
+          testWhileIdle: true
+          testOnBorrow: false
+          testOnReturn: false
+          poolPreparedStatements: true
+          maxPoolPreparedStatementPerConnectionSize: 20
+          useGlobalDataSourceStat: true
+          connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=2000;druid.mysql.usePingMethod=false
+      config:
+        binding-tables: t_order
+        tables:
+          t_order:
+            actual-data-nodes: ds0.t_order_${2022..2023}_${1..4}
+            key-generator:
+              type: DISTRIBUTED
+              column: id
+            table-strategy:
+              standard:
+                sharding-column: create_time
+                precise-algorithm-class-name: cn.sp.sharding.algorithm.MyTableShardingAlgorithm
+                range-algorithm-class-name: cn.sp.sharding.algorithm.MyTableShardingAlgorithm
