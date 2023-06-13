@@ -3,3 +3,5 @@
 /ship-sharding-example/target/
 /ship-sharding-spring-boot-starter/target/
 /.idea/
+/ship-sharding-nacos-example/target/
+/ship-sharding-nacos-example/ship-sharding-nacos-example.iml

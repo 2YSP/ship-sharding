@@ -9,9 +9,12 @@ import org.apache.shardingsphere.api.config.sharding.ShardingRuleConfiguration;
 import org.apache.shardingsphere.core.yaml.swapper.ShardingRuleConfigurationYamlSwapper;
 import org.apache.shardingsphere.shardingjdbc.api.ShardingDataSourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,27 +33,27 @@ import java.util.Map;
  * @date 2023/06/06
  */
 @AutoConfigureBefore(name = CommonConstants.MYBATIS_PLUS_CONFIG_CLASS)
+@AutoConfigureAfter(name = "com.alibaba.cloud.nacos.NacosConfigAutoConfiguration")
 @Configuration
 @EnableConfigurationProperties(value = {ShardingRuleConfigurationProperties.class, ConfigMapConfigurationProperties.class})
 @Import(DataSourceHealthConfig.class)
-public class ShardingAutoConfig implements EnvironmentAware {
+public class ShardingAutoConfig {
 
 
     private Map<String, DataSource> dataSourceMap = new HashMap<>();
 
+    @RefreshScope
     @ConditionalOnMissingBean
     @Bean
     public DataSource shardingDataSource(@Autowired ShardingRuleConfigurationProperties configurationProperties,
-                                         @Autowired ConfigMapConfigurationProperties configMapConfigurationProperties) throws SQLException {
+                                         @Autowired ConfigMapConfigurationProperties configMapConfigurationProperties,
+                                         @Autowired Environment environment) throws SQLException {
+        setDataSourceMap(environment);
         ShardingRuleConfigurationYamlSwapper yamlSwapper = new ShardingRuleConfigurationYamlSwapper();
         ShardingRuleConfiguration shardingRuleConfiguration = yamlSwapper.swap(configurationProperties);
         return ShardingDataSourceFactory.createDataSource(dataSourceMap, shardingRuleConfiguration, configMapConfigurationProperties.getProps());
     }
 
-    @Override
-    public void setEnvironment(Environment environment) {
-        setDataSourceMap(environment);
-    }
 
     private void setDataSourceMap(Environment environment) {
         String names = environment.getProperty(CommonConstants.DATA_SOURCE_CONFIG_PREFIX + ".names");
